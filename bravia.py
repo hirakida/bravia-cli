@@ -18,6 +18,7 @@ class Properties:
     method: str
     id: int
     params: dict
+    version: str
 
 
 class Command(enum.Enum):
@@ -36,28 +37,25 @@ class Operation(enum.Enum):
     SET_POWER_STATUS_ON = auto()
     SET_POWER_STATUS_OFF = auto()
     GET_VOLUME = auto()
-    SET_VOLUME = auto()
+    SET_VOLUME_UP = auto()
+    SET_VOLUME_DOWN = auto()
     SET_MUTE_ON = auto()
     SET_MUTE_OFF = auto()
 
 
-class VolumeOperation(enum.Enum):
-    INCREMENT = auto()
-    DECREMENT = auto()
-
-
 properties_map = {
-    Operation.GET_POWER_STATUS: Properties("system", "getPowerStatus", 50, {}),
-    Operation.SET_POWER_STATUS_ON: Properties("system", "setPowerStatus", 55, {"status": True}),
-    Operation.SET_POWER_STATUS_OFF: Properties("system", "setPowerStatus", 55, {"status": False}),
-    Operation.GET_VOLUME: Properties("audio", "getVolumeInformation", 33, {}),
-    Operation.SET_VOLUME: Properties("audio", "setAudioVolume", 601, {}),
-    Operation.SET_MUTE_ON: Properties("audio", "setAudioMute", 601, {"status": True}),
-    Operation.SET_MUTE_OFF: Properties("audio", "setAudioMute", 601, {"status": False})
+    Operation.GET_POWER_STATUS: Properties("system", "getPowerStatus", 50, {}, "1.0"),
+    Operation.SET_POWER_STATUS_ON: Properties("system", "setPowerStatus", 55, {"status": True}, "1.0"),
+    Operation.SET_POWER_STATUS_OFF: Properties("system", "setPowerStatus", 55, {"status": False}, "1.0"),
+    Operation.GET_VOLUME: Properties("audio", "getVolumeInformation", 33, {}, "1.0"),
+    Operation.SET_VOLUME_UP: Properties("audio", "setAudioVolume", 601, {"volume": "+1", "target": "speaker"}, "1.2"),
+    Operation.SET_VOLUME_DOWN: Properties("audio", "setAudioVolume", 601, {"volume": "-1", "target": "speaker"}, "1.2"),
+    Operation.SET_MUTE_ON: Properties("audio", "setAudioMute", 601, {"status": True}, "1.0"),
+    Operation.SET_MUTE_OFF: Properties("audio", "setAudioMute", 601, {"status": False}, "1.0")
 }
 
 
-def call_api(operation: Operation) -> dict:
+def call_api(operation: Operation, params: dict | None = None) -> dict:
     ip = os.environ["BRAVIA_IP"]
     psk = os.environ["BRAVIA_PSK"]
     properties = properties_map[operation]
@@ -66,8 +64,8 @@ def call_api(operation: Operation) -> dict:
     data = {
         "method": properties.method,
         "id": properties.id,
-        "params": [properties.params],
-        "version": "1.0"
+        "params": [params or properties.params],
+        "version": properties.version,
     }
     request = urllib.request.Request(
         url,
@@ -87,22 +85,6 @@ def call_api(operation: Operation) -> dict:
     except urllib.error.URLError as e:
         print(f"Failed to call {url}. {e}")
         sys.exit(1)
-
-
-def set_volume(operation: VolumeOperation):
-    target = "speaker"
-    content = call_api(Operation.GET_VOLUME)
-    if content:
-        for result in content["result"][0]:
-            if result["target"] == target:
-                volume = result["volume"]
-                if operation == VolumeOperation.INCREMENT:
-                    volume += 1
-                elif operation == VolumeOperation.DECREMENT:
-                    volume -= 1
-                properties_map[Operation.SET_VOLUME].params = {"volume": str(volume), "target": target}
-                call_api(Operation.SET_VOLUME)
-                break
 
 
 def main():
@@ -132,9 +114,9 @@ def main():
             content = call_api(Operation.GET_VOLUME)
             print(content)
         case Command.TURN_UP:
-            set_volume(VolumeOperation.INCREMENT)
+            call_api(Operation.SET_VOLUME_UP)
         case Command.TURN_DOWN:
-            set_volume(VolumeOperation.DECREMENT)
+            call_api(Operation.SET_VOLUME_DOWN)
         case Command.MUTE:
             call_api(Operation.SET_MUTE_ON)
         case Command.UNMUTE:
