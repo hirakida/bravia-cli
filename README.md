@@ -1,6 +1,6 @@
 # bravia-cli
 
-https://pro-bravia.sony.net/develop/integrate/rest-api/spec/  
+https://pro-bravia.sony.net/remote-display-control/rest-api/reference/
 
 ## Environment variables
 - BRAVIA_IP
