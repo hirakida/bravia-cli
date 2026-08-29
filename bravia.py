@@ -21,20 +21,6 @@ class Properties:
     version: str
 
 
-class Command(enum.Enum):
-    SHOW_POWER = "show-power"
-    POWER_ON = "power-on"
-    POWER_OFF = "power-off"
-    SHOW_WOL_MODE = "show-wol-mode"
-    WOL_ON = "wol-on"
-    WOL_OFF = "wol-off"
-    SHOW_VOLUME = "show-volume"
-    TURN_UP = "turn-up"
-    TURN_DOWN = "turn-down"
-    MUTE = "mute"
-    UNMUTE = "unmute"
-
-
 class Operation(enum.Enum):
     GET_POWER_STATUS = auto()
     SET_POWER_STATUS_ON = auto()
@@ -97,49 +83,67 @@ def call_api(operation: Operation, params: dict | None = None) -> dict:
 
 
 def main():
-    p = argparse.ArgumentParser()
-    p.add_argument("command",
-                   choices=[
-                       Command.SHOW_POWER.value,
-                       Command.POWER_ON.value,
-                       Command.POWER_OFF.value,
-                       Command.SHOW_WOL_MODE.value,
-                       Command.WOL_ON.value,
-                       Command.WOL_OFF.value,
-                       Command.SHOW_VOLUME.value,
-                       Command.TURN_UP.value,
-                       Command.TURN_DOWN.value,
-                       Command.MUTE.value,
-                       Command.UNMUTE.value,
-                   ])
-    args = p.parse_args()
+    parser = argparse.ArgumentParser()
+    subparsers = parser.add_subparsers(dest="command", required=True)
 
-    match Command(args.command):
-        case Command.SHOW_POWER:
-            content = call_api(Operation.GET_POWER_STATUS)
-            print(content)
-        case Command.POWER_ON:
-            call_api(Operation.SET_POWER_STATUS_ON)
-        case Command.POWER_OFF:
-            call_api(Operation.SET_POWER_STATUS_OFF)
-        case Command.SHOW_WOL_MODE:
-            content = call_api(Operation.GET_WOL_MODE)
-            print(content)
-        case Command.WOL_ON:
-            call_api(Operation.SET_WOL_MODE_ON)
-        case Command.WOL_OFF:
-            call_api(Operation.SET_WOL_MODE_OFF)
-        case Command.SHOW_VOLUME:
-            content = call_api(Operation.GET_VOLUME)
-            print(content)
-        case Command.TURN_UP:
-            call_api(Operation.SET_VOLUME_UP)
-        case Command.TURN_DOWN:
-            call_api(Operation.SET_VOLUME_DOWN)
-        case Command.MUTE:
-            call_api(Operation.SET_MUTE_ON)
-        case Command.UNMUTE:
-            call_api(Operation.SET_MUTE_OFF)
+    get_parser = subparsers.add_parser("get")
+    get_parser.add_argument("resource",
+                            choices=[
+                                "power-status",
+                                "wol-mode",
+                                "volume",
+                            ])
+
+    set_parser = subparsers.add_parser("set")
+    set_subparsers = set_parser.add_subparsers(dest="resource", required=True)
+    power_parser = set_subparsers.add_parser("power")
+    power_parser.add_argument("value", choices=["on", "off"])
+    wol_parser = set_subparsers.add_parser("wol")
+    wol_parser.add_argument("value", choices=["on", "off"])
+    volume_parser = set_subparsers.add_parser("volume")
+    volume_parser.add_argument("value", choices=["up", "down"])
+    mute_parser = set_subparsers.add_parser("mute")
+    mute_parser.add_argument("value", choices=["on", "off"])
+    args = parser.parse_args()
+
+    match args.command:
+        case "get":
+            match args.resource:
+                case "power-status":
+                    content = call_api(Operation.GET_POWER_STATUS)
+                    print(content)
+                case "wol-mode":
+                    content = call_api(Operation.GET_WOL_MODE)
+                    print(content)
+                case "volume":
+                    content = call_api(Operation.GET_VOLUME)
+                    print(content)
+        case "set":
+            match args.resource:
+                case "power":
+                    match args.value:
+                        case "on":
+                            call_api(Operation.SET_POWER_STATUS_ON)
+                        case "off":
+                            call_api(Operation.SET_POWER_STATUS_OFF)
+                case "wol":
+                    match args.value:
+                        case "on":
+                            call_api(Operation.SET_WOL_MODE_ON)
+                        case "off":
+                            call_api(Operation.SET_WOL_MODE_OFF)
+                case "volume":
+                    match args.value:
+                        case "up":
+                            call_api(Operation.SET_VOLUME_UP)
+                        case "down":
+                            call_api(Operation.SET_VOLUME_DOWN)
+                case "mute":
+                    match args.value:
+                        case "on":
+                            call_api(Operation.SET_MUTE_ON)
+                        case "off":
+                            call_api(Operation.SET_MUTE_OFF)
 
 
 if __name__ == "__main__":
