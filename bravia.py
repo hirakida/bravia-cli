@@ -30,7 +30,8 @@ class Operation(enum.Enum):
     SET_WOL_MODE_OFF = auto()
     GET_CURRENT_TIME = auto()
     GET_NETWORK_SETTINGS = auto()
-    GET_INTERFACE = auto()
+    GET_INTERFACE_INFO = auto()
+    GET_SYSTEM_INFO = auto()
     GET_VOLUME = auto()
     SET_VOLUME_UP = auto()
     SET_VOLUME_DOWN = auto()
@@ -47,7 +48,8 @@ properties_map = {
     Operation.SET_WOL_MODE_OFF: Properties("system", "setWolMode", 55, {"enabled": False}, "1.0"),
     Operation.GET_CURRENT_TIME: Properties("system", "getCurrentTime", 51, {}, "1.1"),
     Operation.GET_NETWORK_SETTINGS: Properties("system", "getNetworkSettings", 2, {}, "1.0"),
-    Operation.GET_INTERFACE: Properties("system", "getInterfaceInformation", 33, {}, "1.0"),
+    Operation.GET_INTERFACE_INFO: Properties("system", "getInterfaceInformation", 33, {}, "1.0"),
+    Operation.GET_SYSTEM_INFO: Properties("system", "getSystemInformation", 33, {}, "1.0"),
     Operation.GET_VOLUME: Properties("audio", "getVolumeInformation", 33, {}, "1.0"),
     Operation.SET_VOLUME_UP: Properties("audio", "setAudioVolume", 601, {"volume": "+1", "target": "speaker"}, "1.2"),
     Operation.SET_VOLUME_DOWN: Properties("audio", "setAudioVolume", 601, {"volume": "-1", "target": "speaker"}, "1.2"),
@@ -100,6 +102,7 @@ def main():
                                 "current-time",
                                 "network-settings",
                                 "interface",
+                                "system",
                                 "volume",
                             ])
 
@@ -128,7 +131,9 @@ def main():
                 case "network-settings":
                     content = call_api(Operation.GET_NETWORK_SETTINGS)
                 case "interface":
-                    content = call_api(Operation.GET_INTERFACE)
+                    content = call_api(Operation.GET_INTERFACE_INFO)
+                case "system":
+                    content = call_api(Operation.GET_SYSTEM_INFO)
                 case "volume":
                     content = call_api(Operation.GET_VOLUME)
             print(content)
