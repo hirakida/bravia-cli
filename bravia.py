@@ -25,6 +25,9 @@ class Command(enum.Enum):
     SHOW_POWER = "show-power"
     POWER_ON = "power-on"
     POWER_OFF = "power-off"
+    SHOW_WOL_MODE = "show-wol-mode"
+    WOL_ON = "wol-on"
+    WOL_OFF = "wol-off"
     SHOW_VOLUME = "show-volume"
     TURN_UP = "turn-up"
     TURN_DOWN = "turn-down"
@@ -36,6 +39,9 @@ class Operation(enum.Enum):
     GET_POWER_STATUS = auto()
     SET_POWER_STATUS_ON = auto()
     SET_POWER_STATUS_OFF = auto()
+    GET_WOL_MODE = auto()
+    SET_WOL_MODE_ON = auto()
+    SET_WOL_MODE_OFF = auto()
     GET_VOLUME = auto()
     SET_VOLUME_UP = auto()
     SET_VOLUME_DOWN = auto()
@@ -47,6 +53,9 @@ properties_map = {
     Operation.GET_POWER_STATUS: Properties("system", "getPowerStatus", 50, {}, "1.0"),
     Operation.SET_POWER_STATUS_ON: Properties("system", "setPowerStatus", 55, {"status": True}, "1.0"),
     Operation.SET_POWER_STATUS_OFF: Properties("system", "setPowerStatus", 55, {"status": False}, "1.0"),
+    Operation.GET_WOL_MODE: Properties("system", "getWolMode", 50, {}, "1.0"),
+    Operation.SET_WOL_MODE_ON: Properties("system", "setWolMode", 55, {"enabled": True}, "1.0"),
+    Operation.SET_WOL_MODE_OFF: Properties("system", "setWolMode", 55, {"enabled": False}, "1.0"),
     Operation.GET_VOLUME: Properties("audio", "getVolumeInformation", 33, {}, "1.0"),
     Operation.SET_VOLUME_UP: Properties("audio", "setAudioVolume", 601, {"volume": "+1", "target": "speaker"}, "1.2"),
     Operation.SET_VOLUME_DOWN: Properties("audio", "setAudioVolume", 601, {"volume": "-1", "target": "speaker"}, "1.2"),
@@ -94,6 +103,9 @@ def main():
                        Command.SHOW_POWER.value,
                        Command.POWER_ON.value,
                        Command.POWER_OFF.value,
+                       Command.SHOW_WOL_MODE.value,
+                       Command.WOL_ON.value,
+                       Command.WOL_OFF.value,
                        Command.SHOW_VOLUME.value,
                        Command.TURN_UP.value,
                        Command.TURN_DOWN.value,
@@ -110,6 +122,13 @@ def main():
             call_api(Operation.SET_POWER_STATUS_ON)
         case Command.POWER_OFF:
             call_api(Operation.SET_POWER_STATUS_OFF)
+        case Command.SHOW_WOL_MODE:
+            content = call_api(Operation.GET_WOL_MODE)
+            print(content)
+        case Command.WOL_ON:
+            call_api(Operation.SET_WOL_MODE_ON)
+        case Command.WOL_OFF:
+            call_api(Operation.SET_WOL_MODE_OFF)
         case Command.SHOW_VOLUME:
             content = call_api(Operation.GET_VOLUME)
             print(content)
