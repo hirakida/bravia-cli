@@ -97,24 +97,30 @@ def main():
     get_parser = subparsers.add_parser("get")
     get_parser.add_argument("resource",
                             choices=[
+                                "power",
                                 "power-status",
+                                "wol",
                                 "wol-mode",
                                 "current-time",
+                                "network",
                                 "network-settings",
                                 "interface",
+                                "interface-information",
                                 "system",
+                                "system-information",
                                 "volume",
+                                "volume-information",
                             ])
 
     set_parser = subparsers.add_parser("set")
     set_subparsers = set_parser.add_subparsers(dest="resource", required=True)
-    power_parser = set_subparsers.add_parser("power")
+    power_parser = set_subparsers.add_parser("power", aliases=["power-status"])
     power_parser.add_argument("value", choices=["on", "off"])
-    wol_parser = set_subparsers.add_parser("wol")
+    wol_parser = set_subparsers.add_parser("wol", aliases=["wol-mode"])
     wol_parser.add_argument("value", choices=["on", "off"])
-    volume_parser = set_subparsers.add_parser("volume")
+    volume_parser = set_subparsers.add_parser("volume", aliases=["audio-volume"])
     volume_parser.add_argument("value", choices=["up", "down"])
-    mute_parser = set_subparsers.add_parser("mute")
+    mute_parser = set_subparsers.add_parser("mute", aliases=["audio-mute"])
     mute_parser.add_argument("value", choices=["on", "off"])
     args = parser.parse_args()
 
@@ -122,42 +128,42 @@ def main():
         case "get":
             content = {}
             match args.resource:
-                case "power-status":
+                case "power" | "power-status":
                     content = call_api(Operation.GET_POWER_STATUS)
-                case "wol-mode":
+                case "wol" | "wol-mode":
                     content = call_api(Operation.GET_WOL_MODE)
                 case "current-time":
                     content = call_api(Operation.GET_CURRENT_TIME)
-                case "network-settings":
+                case "network" | "network-settings":
                     content = call_api(Operation.GET_NETWORK_SETTINGS)
-                case "interface":
+                case "interface" | "interface-information":
                     content = call_api(Operation.GET_INTERFACE_INFO)
-                case "system":
+                case "system" | "system-information":
                     content = call_api(Operation.GET_SYSTEM_INFO)
-                case "volume":
+                case "volume" | "volume-information":
                     content = call_api(Operation.GET_VOLUME)
             print(content)
         case "set":
             match args.resource:
-                case "power":
+                case "power" | "power-status":
                     match args.value:
                         case "on":
                             call_api(Operation.SET_POWER_STATUS_ON)
                         case "off":
                             call_api(Operation.SET_POWER_STATUS_OFF)
-                case "wol":
+                case "wol" | "wol-mode":
                     match args.value:
                         case "on":
                             call_api(Operation.SET_WOL_MODE_ON)
                         case "off":
                             call_api(Operation.SET_WOL_MODE_OFF)
-                case "volume":
+                case "volume" | "audio-volume":
                     match args.value:
                         case "up":
                             call_api(Operation.SET_VOLUME_UP)
                         case "down":
                             call_api(Operation.SET_VOLUME_DOWN)
-                case "mute":
+                case "mute" | "audio-mute":
                     match args.value:
                         case "on":
                             call_api(Operation.SET_MUTE_ON)
