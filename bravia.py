@@ -17,11 +17,17 @@ class Properties:
     path: str
     method: str
     id: int
-    params: dict
+    params: dict | None
     version: str
 
 
 class Operation(enum.Enum):
+    GET_LED_INDICATOR_STATUS = auto()
+    SET_LED_INDICATOR_STATUS_DEMO = auto()
+    SET_LED_INDICATOR_STATUS_AUTO = auto()
+    SET_LED_INDICATOR_STATUS_DARK = auto()
+    SET_LED_INDICATOR_STATUS_SIMPLE = auto()
+    SET_LED_INDICATOR_STATUS_OFF = auto()
     GET_POWER_STATUS = auto()
     SET_POWER_STATUS_ON = auto()
     SET_POWER_STATUS_OFF = auto()
@@ -40,6 +46,14 @@ class Operation(enum.Enum):
 
 
 properties_map = {
+    Operation.GET_LED_INDICATOR_STATUS: Properties("system", "getLEDIndicatorStatus", 45, None, "1.0"),
+    Operation.SET_LED_INDICATOR_STATUS_DEMO: Properties("system", "setLEDIndicatorStatus", 53, {"mode": "Demo"}, "1.1"),
+    Operation.SET_LED_INDICATOR_STATUS_AUTO: Properties("system", "setLEDIndicatorStatus", 53,
+                                                        {"mode": "AutoBrightnessAdjust"}, "1.1"),
+    Operation.SET_LED_INDICATOR_STATUS_DARK: Properties("system", "setLEDIndicatorStatus", 53, {"mode": "Dark"}, "1.1"),
+    Operation.SET_LED_INDICATOR_STATUS_SIMPLE: Properties("system", "setLEDIndicatorStatus", 53,
+                                                          {"mode": "SimpleResponse"}, "1.1"),
+    Operation.SET_LED_INDICATOR_STATUS_OFF: Properties("system", "setLEDIndicatorStatus", 53, {"mode": "Off"}, "1.1"),
     Operation.GET_POWER_STATUS: Properties("system", "getPowerStatus", 50, {}, "1.0"),
     Operation.SET_POWER_STATUS_ON: Properties("system", "setPowerStatus", 55, {"status": True}, "1.0"),
     Operation.SET_POWER_STATUS_OFF: Properties("system", "setPowerStatus", 55, {"status": False}, "1.0"),
@@ -97,6 +111,9 @@ def main():
     get_parser = subparsers.add_parser("get")
     get_parser.add_argument("resource",
                             choices=[
+                                "led",
+                                "led-indicator",
+                                "led-indicator-status",
                                 "power",
                                 "power-status",
                                 "wol",
@@ -114,6 +131,15 @@ def main():
 
     set_parser = subparsers.add_parser("set")
     set_subparsers = set_parser.add_subparsers(dest="resource", required=True)
+
+    led_parser = set_subparsers.add_parser(
+        "led",
+        aliases=["led-indicator", "led-indicator-status"],
+    )
+    led_parser.add_argument(
+        "mode",
+        choices=["demo", "auto", "dark", "simple", "off"],
+    )
     power_parser = set_subparsers.add_parser("power", aliases=["power-status"])
     power_parser.add_argument("value", choices=["on", "off"])
     wol_parser = set_subparsers.add_parser("wol", aliases=["wol-mode"])
@@ -128,6 +154,8 @@ def main():
         case "get":
             content = {}
             match args.resource:
+                case "led" | "led-indicator" | "led-indicator-status":
+                    content = call_api(Operation.GET_LED_INDICATOR_STATUS)
                 case "power" | "power-status":
                     content = call_api(Operation.GET_POWER_STATUS)
                 case "wol" | "wol-mode":
@@ -145,6 +173,18 @@ def main():
             print(content)
         case "set":
             match args.resource:
+                case "led" | "led-indicator" | "led-indicator-status":
+                    match args.mode:
+                        case "demo":
+                            call_api(Operation.SET_LED_INDICATOR_STATUS_DEMO)
+                        case "auto":
+                            call_api(Operation.SET_LED_INDICATOR_STATUS_AUTO)
+                        case "dark":
+                            call_api(Operation.SET_LED_INDICATOR_STATUS_DARK)
+                        case "simple":
+                            call_api(Operation.SET_LED_INDICATOR_STATUS_SIMPLE)
+                        case "off":
+                            call_api(Operation.SET_LED_INDICATOR_STATUS_OFF)
                 case "power" | "power-status":
                     match args.value:
                         case "on":
