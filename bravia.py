@@ -29,6 +29,7 @@ class Operation(enum.Enum):
     SET_WOL_MODE_ON = auto()
     SET_WOL_MODE_OFF = auto()
     GET_CURRENT_TIME = auto()
+    GET_NETWORK_SETTINGS = auto()
     GET_INTERFACE = auto()
     GET_VOLUME = auto()
     SET_VOLUME_UP = auto()
@@ -45,6 +46,7 @@ properties_map = {
     Operation.SET_WOL_MODE_ON: Properties("system", "setWolMode", 55, {"enabled": True}, "1.0"),
     Operation.SET_WOL_MODE_OFF: Properties("system", "setWolMode", 55, {"enabled": False}, "1.0"),
     Operation.GET_CURRENT_TIME: Properties("system", "getCurrentTime", 51, {}, "1.1"),
+    Operation.GET_NETWORK_SETTINGS: Properties("system", "getNetworkSettings", 2, {}, "1.0"),
     Operation.GET_INTERFACE: Properties("system", "getInterfaceInformation", 33, {}, "1.0"),
     Operation.GET_VOLUME: Properties("audio", "getVolumeInformation", 33, {}, "1.0"),
     Operation.SET_VOLUME_UP: Properties("audio", "setAudioVolume", 601, {"volume": "+1", "target": "speaker"}, "1.2"),
@@ -96,6 +98,7 @@ def main():
                                 "power-status",
                                 "wol-mode",
                                 "current-time",
+                                "network-settings",
                                 "interface",
                                 "volume",
                             ])
@@ -122,6 +125,8 @@ def main():
                     content = call_api(Operation.GET_WOL_MODE)
                 case "current-time":
                     content = call_api(Operation.GET_CURRENT_TIME)
+                case "network-settings":
+                    content = call_api(Operation.GET_NETWORK_SETTINGS)
                 case "interface":
                     content = call_api(Operation.GET_INTERFACE)
                 case "volume":
