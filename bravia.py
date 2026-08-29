@@ -28,6 +28,7 @@ class Operation(enum.Enum):
     GET_WOL_MODE = auto()
     SET_WOL_MODE_ON = auto()
     SET_WOL_MODE_OFF = auto()
+    GET_CURRENT_TIME = auto()
     GET_VOLUME = auto()
     SET_VOLUME_UP = auto()
     SET_VOLUME_DOWN = auto()
@@ -42,6 +43,7 @@ properties_map = {
     Operation.GET_WOL_MODE: Properties("system", "getWolMode", 50, {}, "1.0"),
     Operation.SET_WOL_MODE_ON: Properties("system", "setWolMode", 55, {"enabled": True}, "1.0"),
     Operation.SET_WOL_MODE_OFF: Properties("system", "setWolMode", 55, {"enabled": False}, "1.0"),
+    Operation.GET_CURRENT_TIME: Properties("system", "getCurrentTime", 51, {}, "1.1"),
     Operation.GET_VOLUME: Properties("audio", "getVolumeInformation", 33, {}, "1.0"),
     Operation.SET_VOLUME_UP: Properties("audio", "setAudioVolume", 601, {"volume": "+1", "target": "speaker"}, "1.2"),
     Operation.SET_VOLUME_DOWN: Properties("audio", "setAudioVolume", 601, {"volume": "-1", "target": "speaker"}, "1.2"),
@@ -91,6 +93,7 @@ def main():
                             choices=[
                                 "power-status",
                                 "wol-mode",
+                                "current-time",
                                 "volume",
                             ])
 
@@ -108,16 +111,17 @@ def main():
 
     match args.command:
         case "get":
+            content = {}
             match args.resource:
                 case "power-status":
                     content = call_api(Operation.GET_POWER_STATUS)
-                    print(content)
                 case "wol-mode":
                     content = call_api(Operation.GET_WOL_MODE)
-                    print(content)
+                case "current-time":
+                    content = call_api(Operation.GET_CURRENT_TIME)
                 case "volume":
                     content = call_api(Operation.GET_VOLUME)
-                    print(content)
+            print(content)
         case "set":
             match args.resource:
                 case "power":
