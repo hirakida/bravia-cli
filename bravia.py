@@ -50,6 +50,8 @@ class Operation(enum.Enum):
     SET_MUTE_ON = auto()
     SET_MUTE_OFF = auto()
     GET_SPEAKER_SETTINGS = auto()
+    GET_SCENE_SETTING = auto()
+    SET_SCENE_SETTING = auto()
 
 
 properties_map = {
@@ -82,7 +84,9 @@ properties_map = {
     Operation.SET_VOLUME_DOWN: Properties("audio", "setAudioVolume", 601, {"volume": "-1", "target": "speaker"}, "1.2"),
     Operation.SET_MUTE_ON: Properties("audio", "setAudioMute", 601, {"status": True}, "1.0"),
     Operation.SET_MUTE_OFF: Properties("audio", "setAudioMute", 601, {"status": False}, "1.0"),
-    Operation.GET_SPEAKER_SETTINGS: Properties("audio", "getSpeakerSettings", 67, {"target": ""}, "1.0")
+    Operation.GET_SPEAKER_SETTINGS: Properties("audio", "getSpeakerSettings", 67, {"target": ""}, "1.0"),
+    Operation.GET_SCENE_SETTING: Properties("videoScreen", "getSceneSetting", 79, None, "1.0"),
+    Operation.SET_SCENE_SETTING: Properties("videoScreen", "setSceneSetting", 40, None, "1.0")
 }
 
 
@@ -155,6 +159,8 @@ def main():
                                 "volume-information",
                                 "speaker",
                                 "speaker-settings",
+                                "scene",
+                                "scene-setting",
                             ])
 
     set_parser = subparsers.add_parser("set")
@@ -177,6 +183,14 @@ def main():
     power_saving_parser.add_argument(
         "mode",
         choices=["off", "low", "high", "pictureOff"],
+    )
+    scene_parser = set_subparsers.add_parser(
+        "scene",
+        aliases=["scene-setting"],
+    )
+    scene_parser.add_argument(
+        "value",
+        choices=["auto", "auto24pSync", "general"],
     )
     wol_parser = set_subparsers.add_parser("wol", aliases=["wol-mode"])
     wol_parser.add_argument("value", choices=["on", "off"])
@@ -218,6 +232,8 @@ def main():
                     content = call_api(Operation.GET_VOLUME)
                 case "speaker" | "speaker-settings":
                     content = call_api(Operation.GET_SPEAKER_SETTINGS)
+                case "scene" | "scene-setting":
+                    content = call_api(Operation.GET_SCENE_SETTING)
             print(json.dumps(content, indent=2))
         case "set":
             match args.resource:
@@ -241,6 +257,8 @@ def main():
                             call_api(Operation.SET_POWER_STATUS_OFF)
                 case "power-saving" | "power-saving-mode":
                     call_api(Operation.SET_POWER_SAVING_MODE, {"mode": args.mode})
+                case "scene" | "scene-setting":
+                    call_api(Operation.SET_SCENE_SETTING, {"value": args.value})
                 case "wol" | "wol-mode":
                     match args.value:
                         case "on":
