@@ -55,6 +55,7 @@ class Operation(enum.Enum):
     GET_INTERFACE_INFO = auto()
     GET_REMOTE_DEVICE_SETTINGS = auto()
     GET_SYSTEM_INFO = auto()
+    REQUEST_REBOOT = auto()
     # video
     GET_PICTURE_QUALITY_SETTINGS = auto()
     # videoScreen
@@ -100,6 +101,7 @@ properties_map = {
     Operation.GET_INTERFACE_INFO: Properties("system", "getInterfaceInformation", 33, None, "1.0"),
     Operation.GET_REMOTE_DEVICE_SETTINGS: Properties("system", "getRemoteDeviceSettings", 44, {"target": ""}, "1.0"),
     Operation.GET_SYSTEM_INFO: Properties("system", "getSystemInformation", 33, None, "1.0"),
+    Operation.REQUEST_REBOOT: Properties("system", "requestReboot", 10, None, "1.0"),
     # video
     Operation.GET_PICTURE_QUALITY_SETTINGS: Properties("video", "getPictureQualitySettings", 52, {"target": ""}, "1.0"),
     # videoScreen
@@ -192,7 +194,6 @@ def main():
 
     set_parser = subparsers.add_parser("set")
     set_subparsers = set_parser.add_subparsers(dest="resource", required=True)
-
     # audio
     volume_parser = set_subparsers.add_parser("volume", aliases=["audio-volume"])
     volume_parser.add_argument("value", choices=["up", "down"])
@@ -228,8 +229,11 @@ def main():
         "value",
         choices=["auto", "auto24pSync", "general"],
     )
-    args = parser.parse_args()
 
+    request_parser = subparsers.add_parser("request")
+    request_parser.add_argument("action", choices=["reboot"])
+
+    args = parser.parse_args()
     match args.command:
         case "get":
             content = {}
@@ -317,6 +321,10 @@ def main():
                             call_api(Operation.SET_WOL_MODE_OFF)
                 case "scene" | "scene-setting":
                     call_api(Operation.SET_SCENE_SETTING, {"value": args.value})
+        case "request":
+            match args.action:
+                case "reboot":
+                    call_api(Operation.REQUEST_REBOOT)
 
 
 if __name__ == "__main__":
