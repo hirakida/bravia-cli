@@ -31,6 +31,8 @@ class Operation(enum.Enum):
     SET_AUDIO_MUTE_ON = auto()
     SET_AUDIO_MUTE_OFF = auto()
     GET_SPEAKER_SETTINGS = auto()
+    # encryption
+    GET_PUBLIC_KEY = auto()
     # system
     GET_LED_INDICATOR_STATUS = auto()
     SET_LED_INDICATOR_STATUS_DEMO = auto()
@@ -72,6 +74,8 @@ properties_map = {
     Operation.SET_AUDIO_MUTE_ON: Properties("audio", "setAudioMute", 601, {"status": True}, "1.0"),
     Operation.SET_AUDIO_MUTE_OFF: Properties("audio", "setAudioMute", 601, {"status": False}, "1.0"),
     Operation.GET_SPEAKER_SETTINGS: Properties("audio", "getSpeakerSettings", 67, {"target": ""}, "1.0"),
+    # encryption
+    Operation.GET_PUBLIC_KEY: Properties("encryption", "getPublicKey", 1, None, "1.0"),
     # system
     Operation.GET_LED_INDICATOR_STATUS: Properties("system", "getLEDIndicatorStatus", 45, None, "1.0"),
     Operation.SET_LED_INDICATOR_STATUS_DEMO: Properties("system", "setLEDIndicatorStatus", 53, {"mode": "Demo"}, "1.1"),
@@ -153,6 +157,8 @@ def main():
                                 "volume-information",
                                 "speaker",
                                 "speaker-settings",
+                                # encryption
+                                "public-key",
                                 # system
                                 "led",
                                 "led-indicator",
@@ -228,12 +234,18 @@ def main():
         case "get":
             content = {}
             match args.resource:
+                # guide
                 case "api" | "api-info" | "supported-api-info":
                     content = call_api(Operation.GET_SUPPORTED_API_INFO)
+                # audio
                 case "volume" | "volume-information":
                     content = call_api(Operation.GET_VOLUME_INFO)
                 case "speaker" | "speaker-settings":
                     content = call_api(Operation.GET_SPEAKER_SETTINGS)
+                # encryption
+                case "public-key":
+                    content = call_api(Operation.GET_PUBLIC_KEY)
+                # system
                 case "led" | "led-indicator" | "led-indicator-status":
                     content = call_api(Operation.GET_LED_INDICATOR_STATUS)
                 case "power" | "power-status":
@@ -256,8 +268,10 @@ def main():
                     content = call_api(Operation.GET_REMOTE_DEVICE_SETTINGS)
                 case "system" | "system-information":
                     content = call_api(Operation.GET_SYSTEM_INFO)
+                # video
                 case "picture-quality" | "picture-quality-settings":
                     content = call_api(Operation.GET_PICTURE_QUALITY_SETTINGS)
+                # videoScreen
                 case "scene" | "scene-setting":
                     content = call_api(Operation.GET_SCENE_SETTING)
             print(json.dumps(content, indent=2))
