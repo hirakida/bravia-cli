@@ -44,6 +44,7 @@ class Operation(enum.Enum):
     SET_VOLUME_DOWN = auto()
     SET_MUTE_ON = auto()
     SET_MUTE_OFF = auto()
+    GET_SPEAKER_SETTINGS = auto()
 
 
 properties_map = {
@@ -70,7 +71,8 @@ properties_map = {
     Operation.SET_VOLUME_UP: Properties("audio", "setAudioVolume", 601, {"volume": "+1", "target": "speaker"}, "1.2"),
     Operation.SET_VOLUME_DOWN: Properties("audio", "setAudioVolume", 601, {"volume": "-1", "target": "speaker"}, "1.2"),
     Operation.SET_MUTE_ON: Properties("audio", "setAudioMute", 601, {"status": True}, "1.0"),
-    Operation.SET_MUTE_OFF: Properties("audio", "setAudioMute", 601, {"status": False}, "1.0")
+    Operation.SET_MUTE_OFF: Properties("audio", "setAudioMute", 601, {"status": False}, "1.0"),
+    Operation.GET_SPEAKER_SETTINGS: Properties("audio", "getSpeakerSettings", 67, {"target": ""}, "1.0")
 }
 
 
@@ -132,6 +134,8 @@ def main():
                                 "system-information",
                                 "volume",
                                 "volume-information",
+                                "speaker",
+                                "speaker-settings",
                             ])
 
     set_parser = subparsers.add_parser("set")
@@ -177,6 +181,8 @@ def main():
                     content = call_api(Operation.GET_SYSTEM_INFO)
                 case "volume" | "volume-information":
                     content = call_api(Operation.GET_VOLUME)
+                case "speaker" | "speaker-settings":
+                    content = call_api(Operation.GET_SPEAKER_SETTINGS)
             print(json.dumps(content, indent=2))
         case "set":
             match args.resource:
