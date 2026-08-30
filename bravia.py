@@ -32,6 +32,9 @@ class Operation(enum.Enum):
     GET_POWER_STATUS = auto()
     SET_POWER_STATUS_ON = auto()
     SET_POWER_STATUS_OFF = auto()
+    GET_POWER_SAVING_MODE = auto()
+    GET_REMOTE_CONTROLLER_INFO = auto()
+    GET_SYSTEM_SUPPORTED_FUNCTION = auto()
     GET_WOL_MODE = auto()
     SET_WOL_MODE_ON = auto()
     SET_WOL_MODE_OFF = auto()
@@ -60,6 +63,9 @@ properties_map = {
     Operation.GET_POWER_STATUS: Properties("system", "getPowerStatus", 50, None, "1.0"),
     Operation.SET_POWER_STATUS_ON: Properties("system", "setPowerStatus", 55, {"status": True}, "1.0"),
     Operation.SET_POWER_STATUS_OFF: Properties("system", "setPowerStatus", 55, {"status": False}, "1.0"),
+    Operation.GET_POWER_SAVING_MODE: Properties("system", "getPowerSavingMode", 51, None, "1.0"),
+    Operation.GET_REMOTE_CONTROLLER_INFO: Properties("system", "getRemoteControllerInfo", 54, None, "1.0"),
+    Operation.GET_SYSTEM_SUPPORTED_FUNCTION: Properties("system", "getSystemSupportedFunction", 55, None, "1.0"),
     Operation.GET_WOL_MODE: Properties("system", "getWolMode", 50, None, "1.0"),
     Operation.SET_WOL_MODE_ON: Properties("system", "setWolMode", 55, {"enabled": True}, "1.0"),
     Operation.SET_WOL_MODE_OFF: Properties("system", "setWolMode", 55, {"enabled": False}, "1.0"),
@@ -80,12 +86,13 @@ def call_api(operation: Operation, params: dict | None = None) -> dict:
     ip = os.environ["BRAVIA_IP"]
     psk = os.environ["BRAVIA_PSK"]
     properties = properties_map[operation]
+    request_params = properties.params if params is None else params
 
     url = urllib.parse.urlunsplit(("http", ip, f"/sony/{properties.path}", None, None))
     data = {
         "method": properties.method,
         "id": properties.id,
-        "params": [params or properties.params],
+        "params": [] if request_params is None else [request_params],
         "version": properties.version,
     }
     request = urllib.request.Request(
@@ -123,6 +130,12 @@ def main():
                                 "led-indicator-status",
                                 "power",
                                 "power-status",
+                                "power-saving",
+                                "power-saving-mode",
+                                "remote-controller",
+                                "remote-controller-info",
+                                "system-supported-function",
+                                "supported-function",
                                 "wol",
                                 "wol-mode",
                                 "current-time",
@@ -169,6 +182,12 @@ def main():
                     content = call_api(Operation.GET_LED_INDICATOR_STATUS)
                 case "power" | "power-status":
                     content = call_api(Operation.GET_POWER_STATUS)
+                case "power-saving" | "power-saving-mode":
+                    content = call_api(Operation.GET_POWER_SAVING_MODE)
+                case "remote-controller" | "remote-controller-info":
+                    content = call_api(Operation.GET_REMOTE_CONTROLLER_INFO)
+                case "system-supported-function" | "supported-function":
+                    content = call_api(Operation.GET_SYSTEM_SUPPORTED_FUNCTION)
                 case "wol" | "wol-mode":
                     content = call_api(Operation.GET_WOL_MODE)
                 case "current-time":
