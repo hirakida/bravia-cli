@@ -26,30 +26,22 @@ class Operation(enum.Enum):
     GET_SUPPORTED_API_INFO = auto()
     # audio
     GET_VOLUME_INFO = auto()
-    SET_AUDIO_VOLUME_UP = auto()
-    SET_AUDIO_VOLUME_DOWN = auto()
-    SET_AUDIO_MUTE_ON = auto()
-    SET_AUDIO_MUTE_OFF = auto()
+    SET_AUDIO_VOLUME = auto()
+    SET_AUDIO_MUTE = auto()
     GET_SPEAKER_SETTINGS = auto()
     # encryption
     GET_PUBLIC_KEY = auto()
     # system
     GET_LED_INDICATOR_STATUS = auto()
-    SET_LED_INDICATOR_STATUS_DEMO = auto()
-    SET_LED_INDICATOR_STATUS_AUTO = auto()
-    SET_LED_INDICATOR_STATUS_DARK = auto()
-    SET_LED_INDICATOR_STATUS_SIMPLE = auto()
-    SET_LED_INDICATOR_STATUS_OFF = auto()
+    SET_LED_INDICATOR_STATUS = auto()
     GET_POWER_STATUS = auto()
-    SET_POWER_STATUS_ON = auto()
-    SET_POWER_STATUS_OFF = auto()
+    SET_POWER_STATUS = auto()
     GET_POWER_SAVING_MODE = auto()
     SET_POWER_SAVING_MODE = auto()
     GET_REMOTE_CONTROLLER_INFO = auto()
     GET_SYSTEM_SUPPORTED_FUNCTION = auto()
     GET_WOL_MODE = auto()
-    SET_WOL_MODE_ON = auto()
-    SET_WOL_MODE_OFF = auto()
+    SET_WOL_MODE = auto()
     GET_CURRENT_TIME = auto()
     GET_NETWORK_SETTINGS = auto()
     GET_INTERFACE_INFO = auto()
@@ -68,34 +60,22 @@ properties_map = {
     Operation.GET_SUPPORTED_API_INFO: Properties("guide", "getSupportedApiInfo", 5, {"services": None}, "1.0"),
     # audio
     Operation.GET_VOLUME_INFO: Properties("audio", "getVolumeInformation", 33, None, "1.0"),
-    Operation.SET_AUDIO_VOLUME_UP: Properties("audio", "setAudioVolume", 601, {"volume": "+1", "target": "speaker"},
-                                              "1.2"),
-    Operation.SET_AUDIO_VOLUME_DOWN: Properties("audio", "setAudioVolume", 601, {"volume": "-1", "target": "speaker"},
-                                                "1.2"),
-    Operation.SET_AUDIO_MUTE_ON: Properties("audio", "setAudioMute", 601, {"status": True}, "1.0"),
-    Operation.SET_AUDIO_MUTE_OFF: Properties("audio", "setAudioMute", 601, {"status": False}, "1.0"),
+    Operation.SET_AUDIO_VOLUME: Properties("audio", "setAudioVolume", 601, {}, "1.2"),
+    Operation.SET_AUDIO_MUTE: Properties("audio", "setAudioMute", 601, {}, "1.0"),
     Operation.GET_SPEAKER_SETTINGS: Properties("audio", "getSpeakerSettings", 67, {"target": ""}, "1.0"),
     # encryption
     Operation.GET_PUBLIC_KEY: Properties("encryption", "getPublicKey", 1, None, "1.0"),
     # system
     Operation.GET_LED_INDICATOR_STATUS: Properties("system", "getLEDIndicatorStatus", 45, None, "1.0"),
-    Operation.SET_LED_INDICATOR_STATUS_DEMO: Properties("system", "setLEDIndicatorStatus", 53, {"mode": "Demo"}, "1.1"),
-    Operation.SET_LED_INDICATOR_STATUS_AUTO: Properties("system", "setLEDIndicatorStatus", 53,
-                                                        {"mode": "AutoBrightnessAdjust"}, "1.1"),
-    Operation.SET_LED_INDICATOR_STATUS_DARK: Properties("system", "setLEDIndicatorStatus", 53, {"mode": "Dark"}, "1.1"),
-    Operation.SET_LED_INDICATOR_STATUS_SIMPLE: Properties("system", "setLEDIndicatorStatus", 53,
-                                                          {"mode": "SimpleResponse"}, "1.1"),
-    Operation.SET_LED_INDICATOR_STATUS_OFF: Properties("system", "setLEDIndicatorStatus", 53, {"mode": "Off"}, "1.1"),
+    Operation.SET_LED_INDICATOR_STATUS: Properties("system", "setLEDIndicatorStatus", 53, {}, "1.1"),
     Operation.GET_POWER_STATUS: Properties("system", "getPowerStatus", 50, None, "1.0"),
-    Operation.SET_POWER_STATUS_ON: Properties("system", "setPowerStatus", 55, {"status": True}, "1.0"),
-    Operation.SET_POWER_STATUS_OFF: Properties("system", "setPowerStatus", 55, {"status": False}, "1.0"),
+    Operation.SET_POWER_STATUS: Properties("system", "setPowerStatus", 55, {}, "1.0"),
     Operation.GET_POWER_SAVING_MODE: Properties("system", "getPowerSavingMode", 51, None, "1.0"),
     Operation.SET_POWER_SAVING_MODE: Properties("system", "setPowerSavingMode", 52, None, "1.0"),
     Operation.GET_REMOTE_CONTROLLER_INFO: Properties("system", "getRemoteControllerInfo", 54, None, "1.0"),
     Operation.GET_SYSTEM_SUPPORTED_FUNCTION: Properties("system", "getSystemSupportedFunction", 55, None, "1.0"),
     Operation.GET_WOL_MODE: Properties("system", "getWolMode", 50, None, "1.0"),
-    Operation.SET_WOL_MODE_ON: Properties("system", "setWolMode", 55, {"enabled": True}, "1.0"),
-    Operation.SET_WOL_MODE_OFF: Properties("system", "setWolMode", 55, {"enabled": False}, "1.0"),
+    Operation.SET_WOL_MODE: Properties("system", "setWolMode", 55, {}, "1.0"),
     Operation.GET_CURRENT_TIME: Properties("system", "getCurrentTime", 51, None, "1.1"),
     Operation.GET_NETWORK_SETTINGS: Properties("system", "getNetworkSettings", 2, {"netif": ""}, "1.0"),
     Operation.GET_INTERFACE_INFO: Properties("system", "getInterfaceInformation", 33, None, "1.0"),
@@ -206,7 +186,7 @@ def main():
     )
     led_parser.add_argument(
         "mode",
-        choices=["demo", "auto", "dark", "simple", "off"],
+        choices=["Demo", "AutoBrightnessAdjust", "Dark", "SimpleResponse", "Off"],
     )
     power_parser = set_subparsers.add_parser("power", aliases=["power-status"])
     power_parser.add_argument("value", choices=["on", "off"])
@@ -250,7 +230,7 @@ def main():
                 case "public-key":
                     content = call_api(Operation.GET_PUBLIC_KEY)
                 # system
-                case "led" | "led-indicator" | "led-indicator-status":
+                case "led" | "led-indicator-status":
                     content = call_api(Operation.GET_LED_INDICATOR_STATUS)
                 case "power" | "power-status":
                     content = call_api(Operation.GET_POWER_STATUS)
@@ -281,44 +261,37 @@ def main():
             print(json.dumps(content, indent=2))
         case "set":
             match args.resource:
+                # audio
                 case "volume" | "audio-volume":
                     match args.value:
                         case "up":
-                            call_api(Operation.SET_AUDIO_VOLUME_UP)
+                            call_api(Operation.SET_AUDIO_VOLUME, {"volume": "+1", "target": "speaker"})
                         case "down":
-                            call_api(Operation.SET_AUDIO_VOLUME_DOWN)
+                            call_api(Operation.SET_AUDIO_VOLUME, {"volume": "-1", "target": "speaker"})
                 case "mute" | "audio-mute":
                     match args.value:
                         case "on":
-                            call_api(Operation.SET_AUDIO_MUTE_ON)
+                            call_api(Operation.SET_AUDIO_MUTE, {"status": True})
                         case "off":
-                            call_api(Operation.SET_AUDIO_MUTE_OFF)
-                case "led" | "led-indicator" | "led-indicator-status":
-                    match args.mode:
-                        case "demo":
-                            call_api(Operation.SET_LED_INDICATOR_STATUS_DEMO)
-                        case "auto":
-                            call_api(Operation.SET_LED_INDICATOR_STATUS_AUTO)
-                        case "dark":
-                            call_api(Operation.SET_LED_INDICATOR_STATUS_DARK)
-                        case "simple":
-                            call_api(Operation.SET_LED_INDICATOR_STATUS_SIMPLE)
-                        case "off":
-                            call_api(Operation.SET_LED_INDICATOR_STATUS_OFF)
+                            call_api(Operation.SET_AUDIO_MUTE, {"status": False})
+                # system
+                case "led" | "led-indicator-status":
+                    call_api(Operation.SET_LED_INDICATOR_STATUS, {"mode": args.mode})
                 case "power" | "power-status":
                     match args.value:
                         case "on":
-                            call_api(Operation.SET_POWER_STATUS_ON)
+                            call_api(Operation.SET_POWER_STATUS, {"status": True})
                         case "off":
-                            call_api(Operation.SET_POWER_STATUS_OFF)
+                            call_api(Operation.SET_POWER_STATUS, {"status": False})
                 case "power-saving" | "power-saving-mode":
                     call_api(Operation.SET_POWER_SAVING_MODE, {"mode": args.mode})
                 case "wol" | "wol-mode":
                     match args.value:
                         case "on":
-                            call_api(Operation.SET_WOL_MODE_ON)
+                            call_api(Operation.SET_WOL_MODE, {"enabled": True})
                         case "off":
-                            call_api(Operation.SET_WOL_MODE_OFF)
+                            call_api(Operation.SET_WOL_MODE, {"enabled": False})
+                # videoScreen
                 case "scene" | "scene-setting":
                     call_api(Operation.SET_SCENE_SETTING, {"value": args.value})
         case "request":
