@@ -41,6 +41,7 @@ class Operation(enum.Enum):
     GET_CURRENT_TIME = auto()
     GET_NETWORK_SETTINGS = auto()
     GET_INTERFACE_INFO = auto()
+    GET_REMOTE_DEVICE_SETTINGS = auto()
     GET_SYSTEM_INFO = auto()
     GET_VOLUME = auto()
     SET_VOLUME_UP = auto()
@@ -72,6 +73,7 @@ properties_map = {
     Operation.GET_CURRENT_TIME: Properties("system", "getCurrentTime", 51, None, "1.1"),
     Operation.GET_NETWORK_SETTINGS: Properties("system", "getNetworkSettings", 2, {"netif": ""}, "1.0"),
     Operation.GET_INTERFACE_INFO: Properties("system", "getInterfaceInformation", 33, None, "1.0"),
+    Operation.GET_REMOTE_DEVICE_SETTINGS: Properties("system", "getRemoteDeviceSettings", 44, {"target": ""}, "1.0"),
     Operation.GET_SYSTEM_INFO: Properties("system", "getSystemInformation", 33, None, "1.0"),
     Operation.GET_VOLUME: Properties("audio", "getVolumeInformation", 33, None, "1.0"),
     Operation.SET_VOLUME_UP: Properties("audio", "setAudioVolume", 601, {"volume": "+1", "target": "speaker"}, "1.2"),
@@ -143,6 +145,8 @@ def main():
                                 "network-settings",
                                 "interface",
                                 "interface-information",
+                                "remote-device",
+                                "remote-device-settings",
                                 "system",
                                 "system-information",
                                 "volume",
@@ -196,6 +200,8 @@ def main():
                     content = call_api(Operation.GET_NETWORK_SETTINGS)
                 case "interface" | "interface-information":
                     content = call_api(Operation.GET_INTERFACE_INFO)
+                case "remote-device" | "remote-device-settings":
+                    content = call_api(Operation.GET_REMOTE_DEVICE_SETTINGS)
                 case "system" | "system-information":
                     content = call_api(Operation.GET_SYSTEM_INFO)
                 case "volume" | "volume-information":
