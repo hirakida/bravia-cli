@@ -24,6 +24,8 @@ class Properties:
 class Operation(enum.Enum):
     # guide
     GET_SUPPORTED_API_INFO = auto()
+    # appControl
+    GET_APPLICATION_LIST = auto()
     # audio
     GET_VOLUME_INFO = auto()
     SET_AUDIO_VOLUME = auto()
@@ -58,6 +60,8 @@ class Operation(enum.Enum):
 properties_map = {
     # guide
     Operation.GET_SUPPORTED_API_INFO: Properties("guide", "getSupportedApiInfo", 5, {"services": None}, "1.0"),
+    # appControl
+    Operation.GET_APPLICATION_LIST: Properties("appControl", "getApplicationList", 60, None, "1.0"),
     # audio
     Operation.GET_VOLUME_INFO: Properties("audio", "getVolumeInformation", 33, None, "1.0"),
     Operation.SET_AUDIO_VOLUME: Properties("audio", "setAudioVolume", 601, {}, "1.2"),
@@ -134,6 +138,8 @@ def main():
                                 "api",
                                 "api-info",
                                 "supported-api-info",
+                                # appControl
+                                "application-list",
                                 # audio
                                 "volume",
                                 "volume-information",
@@ -221,6 +227,9 @@ def main():
                 # guide
                 case "api" | "api-info" | "supported-api-info":
                     content = call_api(Operation.GET_SUPPORTED_API_INFO)
+                # appControl
+                case "application-list":
+                    content = call_api(Operation.GET_APPLICATION_LIST)
                 # audio
                 case "volume" | "volume-information":
                     content = call_api(Operation.GET_VOLUME_INFO)
