@@ -22,6 +22,7 @@ class Properties:
 
 
 class Operation(enum.Enum):
+    GET_SUPPORTED_API_INFO = auto()
     GET_LED_INDICATOR_STATUS = auto()
     SET_LED_INDICATOR_STATUS_DEMO = auto()
     SET_LED_INDICATOR_STATUS_AUTO = auto()
@@ -46,6 +47,7 @@ class Operation(enum.Enum):
 
 
 properties_map = {
+    Operation.GET_SUPPORTED_API_INFO: Properties("guide", "getSupportedApiInfo", 5, {"services": None}, "1.0"),
     Operation.GET_LED_INDICATOR_STATUS: Properties("system", "getLEDIndicatorStatus", 45, None, "1.0"),
     Operation.SET_LED_INDICATOR_STATUS_DEMO: Properties("system", "setLEDIndicatorStatus", 53, {"mode": "Demo"}, "1.1"),
     Operation.SET_LED_INDICATOR_STATUS_AUTO: Properties("system", "setLEDIndicatorStatus", 53,
@@ -61,7 +63,7 @@ properties_map = {
     Operation.SET_WOL_MODE_ON: Properties("system", "setWolMode", 55, {"enabled": True}, "1.0"),
     Operation.SET_WOL_MODE_OFF: Properties("system", "setWolMode", 55, {"enabled": False}, "1.0"),
     Operation.GET_CURRENT_TIME: Properties("system", "getCurrentTime", 51, None, "1.1"),
-    Operation.GET_NETWORK_SETTINGS: Properties("system", "getNetworkSettings", 2, None, "1.0"),
+    Operation.GET_NETWORK_SETTINGS: Properties("system", "getNetworkSettings", 2, {"netif": ""}, "1.0"),
     Operation.GET_INTERFACE_INFO: Properties("system", "getInterfaceInformation", 33, None, "1.0"),
     Operation.GET_SYSTEM_INFO: Properties("system", "getSystemInformation", 33, None, "1.0"),
     Operation.GET_VOLUME: Properties("audio", "getVolumeInformation", 33, None, "1.0"),
@@ -111,6 +113,9 @@ def main():
     get_parser = subparsers.add_parser("get")
     get_parser.add_argument("resource",
                             choices=[
+                                "api",
+                                "api-info",
+                                "supported-api-info",
                                 "led",
                                 "led-indicator",
                                 "led-indicator-status",
@@ -154,6 +159,8 @@ def main():
         case "get":
             content = {}
             match args.resource:
+                case "api" | "api-info" | "supported-api-info":
+                    content = call_api(Operation.GET_SUPPORTED_API_INFO)
                 case "led" | "led-indicator" | "led-indicator-status":
                     content = call_api(Operation.GET_LED_INDICATOR_STATUS)
                 case "power" | "power-status":
@@ -170,7 +177,7 @@ def main():
                     content = call_api(Operation.GET_SYSTEM_INFO)
                 case "volume" | "volume-information":
                     content = call_api(Operation.GET_VOLUME)
-            print(content)
+            print(json.dumps(content, indent=2))
         case "set":
             match args.resource:
                 case "led" | "led-indicator" | "led-indicator-status":
