@@ -33,6 +33,7 @@ class Operation(enum.Enum):
     SET_POWER_STATUS_ON = auto()
     SET_POWER_STATUS_OFF = auto()
     GET_POWER_SAVING_MODE = auto()
+    SET_POWER_SAVING_MODE = auto()
     GET_REMOTE_CONTROLLER_INFO = auto()
     GET_SYSTEM_SUPPORTED_FUNCTION = auto()
     GET_WOL_MODE = auto()
@@ -65,6 +66,7 @@ properties_map = {
     Operation.SET_POWER_STATUS_ON: Properties("system", "setPowerStatus", 55, {"status": True}, "1.0"),
     Operation.SET_POWER_STATUS_OFF: Properties("system", "setPowerStatus", 55, {"status": False}, "1.0"),
     Operation.GET_POWER_SAVING_MODE: Properties("system", "getPowerSavingMode", 51, None, "1.0"),
+    Operation.SET_POWER_SAVING_MODE: Properties("system", "setPowerSavingMode", 52, None, "1.0"),
     Operation.GET_REMOTE_CONTROLLER_INFO: Properties("system", "getRemoteControllerInfo", 54, None, "1.0"),
     Operation.GET_SYSTEM_SUPPORTED_FUNCTION: Properties("system", "getSystemSupportedFunction", 55, None, "1.0"),
     Operation.GET_WOL_MODE: Properties("system", "getWolMode", 50, None, "1.0"),
@@ -168,6 +170,14 @@ def main():
     )
     power_parser = set_subparsers.add_parser("power", aliases=["power-status"])
     power_parser.add_argument("value", choices=["on", "off"])
+    power_saving_parser = set_subparsers.add_parser(
+        "power-saving",
+        aliases=["power-saving-mode"],
+    )
+    power_saving_parser.add_argument(
+        "mode",
+        choices=["off", "low", "high", "pictureOff"],
+    )
     wol_parser = set_subparsers.add_parser("wol", aliases=["wol-mode"])
     wol_parser.add_argument("value", choices=["on", "off"])
     volume_parser = set_subparsers.add_parser("volume", aliases=["audio-volume"])
@@ -229,6 +239,8 @@ def main():
                             call_api(Operation.SET_POWER_STATUS_ON)
                         case "off":
                             call_api(Operation.SET_POWER_STATUS_OFF)
+                case "power-saving" | "power-saving-mode":
+                    call_api(Operation.SET_POWER_SAVING_MODE, {"mode": args.mode})
                 case "wol" | "wol-mode":
                     match args.value:
                         case "on":
