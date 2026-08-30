@@ -50,6 +50,7 @@ class Operation(enum.Enum):
     SET_MUTE_ON = auto()
     SET_MUTE_OFF = auto()
     GET_SPEAKER_SETTINGS = auto()
+    GET_PICTURE_QUALITY_SETTINGS = auto()
     GET_SCENE_SETTING = auto()
     SET_SCENE_SETTING = auto()
 
@@ -85,6 +86,7 @@ properties_map = {
     Operation.SET_MUTE_ON: Properties("audio", "setAudioMute", 601, {"status": True}, "1.0"),
     Operation.SET_MUTE_OFF: Properties("audio", "setAudioMute", 601, {"status": False}, "1.0"),
     Operation.GET_SPEAKER_SETTINGS: Properties("audio", "getSpeakerSettings", 67, {"target": ""}, "1.0"),
+    Operation.GET_PICTURE_QUALITY_SETTINGS: Properties("video", "getPictureQualitySettings", 52, {"target": ""}, "1.0"),
     Operation.GET_SCENE_SETTING: Properties("videoScreen", "getSceneSetting", 79, None, "1.0"),
     Operation.SET_SCENE_SETTING: Properties("videoScreen", "setSceneSetting", 40, None, "1.0")
 }
@@ -159,6 +161,8 @@ def main():
                                 "volume-information",
                                 "speaker",
                                 "speaker-settings",
+                                "picture-quality",
+                                "picture-quality-settings",
                                 "scene",
                                 "scene-setting",
                             ])
@@ -232,6 +236,8 @@ def main():
                     content = call_api(Operation.GET_VOLUME)
                 case "speaker" | "speaker-settings":
                     content = call_api(Operation.GET_SPEAKER_SETTINGS)
+                case "picture-quality" | "picture-quality-settings":
+                    content = call_api(Operation.GET_PICTURE_QUALITY_SETTINGS)
                 case "scene" | "scene-setting":
                     content = call_api(Operation.GET_SCENE_SETTING)
             print(json.dumps(content, indent=2))
