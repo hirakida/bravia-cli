@@ -22,7 +22,16 @@ class Properties:
 
 
 class Operation(enum.Enum):
+    # guide
     GET_SUPPORTED_API_INFO = auto()
+    # audio
+    GET_VOLUME_INFO = auto()
+    SET_AUDIO_VOLUME_UP = auto()
+    SET_AUDIO_VOLUME_DOWN = auto()
+    SET_AUDIO_MUTE_ON = auto()
+    SET_AUDIO_MUTE_OFF = auto()
+    GET_SPEAKER_SETTINGS = auto()
+    # system
     GET_LED_INDICATOR_STATUS = auto()
     SET_LED_INDICATOR_STATUS_DEMO = auto()
     SET_LED_INDICATOR_STATUS_AUTO = auto()
@@ -44,19 +53,26 @@ class Operation(enum.Enum):
     GET_INTERFACE_INFO = auto()
     GET_REMOTE_DEVICE_SETTINGS = auto()
     GET_SYSTEM_INFO = auto()
-    GET_VOLUME = auto()
-    SET_VOLUME_UP = auto()
-    SET_VOLUME_DOWN = auto()
-    SET_MUTE_ON = auto()
-    SET_MUTE_OFF = auto()
-    GET_SPEAKER_SETTINGS = auto()
+    # video
     GET_PICTURE_QUALITY_SETTINGS = auto()
+    # videoScreen
     GET_SCENE_SETTING = auto()
     SET_SCENE_SETTING = auto()
 
 
 properties_map = {
+    # guide
     Operation.GET_SUPPORTED_API_INFO: Properties("guide", "getSupportedApiInfo", 5, {"services": None}, "1.0"),
+    # audio
+    Operation.GET_VOLUME_INFO: Properties("audio", "getVolumeInformation", 33, None, "1.0"),
+    Operation.SET_AUDIO_VOLUME_UP: Properties("audio", "setAudioVolume", 601, {"volume": "+1", "target": "speaker"},
+                                              "1.2"),
+    Operation.SET_AUDIO_VOLUME_DOWN: Properties("audio", "setAudioVolume", 601, {"volume": "-1", "target": "speaker"},
+                                                "1.2"),
+    Operation.SET_AUDIO_MUTE_ON: Properties("audio", "setAudioMute", 601, {"status": True}, "1.0"),
+    Operation.SET_AUDIO_MUTE_OFF: Properties("audio", "setAudioMute", 601, {"status": False}, "1.0"),
+    Operation.GET_SPEAKER_SETTINGS: Properties("audio", "getSpeakerSettings", 67, {"target": ""}, "1.0"),
+    # system
     Operation.GET_LED_INDICATOR_STATUS: Properties("system", "getLEDIndicatorStatus", 45, None, "1.0"),
     Operation.SET_LED_INDICATOR_STATUS_DEMO: Properties("system", "setLEDIndicatorStatus", 53, {"mode": "Demo"}, "1.1"),
     Operation.SET_LED_INDICATOR_STATUS_AUTO: Properties("system", "setLEDIndicatorStatus", 53,
@@ -80,13 +96,9 @@ properties_map = {
     Operation.GET_INTERFACE_INFO: Properties("system", "getInterfaceInformation", 33, None, "1.0"),
     Operation.GET_REMOTE_DEVICE_SETTINGS: Properties("system", "getRemoteDeviceSettings", 44, {"target": ""}, "1.0"),
     Operation.GET_SYSTEM_INFO: Properties("system", "getSystemInformation", 33, None, "1.0"),
-    Operation.GET_VOLUME: Properties("audio", "getVolumeInformation", 33, None, "1.0"),
-    Operation.SET_VOLUME_UP: Properties("audio", "setAudioVolume", 601, {"volume": "+1", "target": "speaker"}, "1.2"),
-    Operation.SET_VOLUME_DOWN: Properties("audio", "setAudioVolume", 601, {"volume": "-1", "target": "speaker"}, "1.2"),
-    Operation.SET_MUTE_ON: Properties("audio", "setAudioMute", 601, {"status": True}, "1.0"),
-    Operation.SET_MUTE_OFF: Properties("audio", "setAudioMute", 601, {"status": False}, "1.0"),
-    Operation.GET_SPEAKER_SETTINGS: Properties("audio", "getSpeakerSettings", 67, {"target": ""}, "1.0"),
+    # video
     Operation.GET_PICTURE_QUALITY_SETTINGS: Properties("video", "getPictureQualitySettings", 52, {"target": ""}, "1.0"),
+    # videoScreen
     Operation.GET_SCENE_SETTING: Properties("videoScreen", "getSceneSetting", 79, None, "1.0"),
     Operation.SET_SCENE_SETTING: Properties("videoScreen", "setSceneSetting", 40, None, "1.0")
 }
@@ -132,9 +144,16 @@ def main():
     get_parser = subparsers.add_parser("get")
     get_parser.add_argument("resource",
                             choices=[
+                                # guide
                                 "api",
                                 "api-info",
                                 "supported-api-info",
+                                # audio
+                                "volume",
+                                "volume-information",
+                                "speaker",
+                                "speaker-settings",
+                                # system
                                 "led",
                                 "led-indicator",
                                 "led-indicator-status",
@@ -157,12 +176,10 @@ def main():
                                 "remote-device-settings",
                                 "system",
                                 "system-information",
-                                "volume",
-                                "volume-information",
-                                "speaker",
-                                "speaker-settings",
+                                # video
                                 "picture-quality",
                                 "picture-quality-settings",
+                                # videoScreen
                                 "scene",
                                 "scene-setting",
                             ])
@@ -170,6 +187,12 @@ def main():
     set_parser = subparsers.add_parser("set")
     set_subparsers = set_parser.add_subparsers(dest="resource", required=True)
 
+    # audio
+    volume_parser = set_subparsers.add_parser("volume", aliases=["audio-volume"])
+    volume_parser.add_argument("value", choices=["up", "down"])
+    mute_parser = set_subparsers.add_parser("mute", aliases=["audio-mute"])
+    mute_parser.add_argument("value", choices=["on", "off"])
+    # system
     led_parser = set_subparsers.add_parser(
         "led",
         aliases=["led-indicator", "led-indicator-status"],
@@ -188,6 +211,9 @@ def main():
         "mode",
         choices=["off", "low", "high", "pictureOff"],
     )
+    wol_parser = set_subparsers.add_parser("wol", aliases=["wol-mode"])
+    wol_parser.add_argument("value", choices=["on", "off"])
+    # videoScreen
     scene_parser = set_subparsers.add_parser(
         "scene",
         aliases=["scene-setting"],
@@ -196,12 +222,6 @@ def main():
         "value",
         choices=["auto", "auto24pSync", "general"],
     )
-    wol_parser = set_subparsers.add_parser("wol", aliases=["wol-mode"])
-    wol_parser.add_argument("value", choices=["on", "off"])
-    volume_parser = set_subparsers.add_parser("volume", aliases=["audio-volume"])
-    volume_parser.add_argument("value", choices=["up", "down"])
-    mute_parser = set_subparsers.add_parser("mute", aliases=["audio-mute"])
-    mute_parser.add_argument("value", choices=["on", "off"])
     args = parser.parse_args()
 
     match args.command:
@@ -210,6 +230,10 @@ def main():
             match args.resource:
                 case "api" | "api-info" | "supported-api-info":
                     content = call_api(Operation.GET_SUPPORTED_API_INFO)
+                case "volume" | "volume-information":
+                    content = call_api(Operation.GET_VOLUME_INFO)
+                case "speaker" | "speaker-settings":
+                    content = call_api(Operation.GET_SPEAKER_SETTINGS)
                 case "led" | "led-indicator" | "led-indicator-status":
                     content = call_api(Operation.GET_LED_INDICATOR_STATUS)
                 case "power" | "power-status":
@@ -232,10 +256,6 @@ def main():
                     content = call_api(Operation.GET_REMOTE_DEVICE_SETTINGS)
                 case "system" | "system-information":
                     content = call_api(Operation.GET_SYSTEM_INFO)
-                case "volume" | "volume-information":
-                    content = call_api(Operation.GET_VOLUME)
-                case "speaker" | "speaker-settings":
-                    content = call_api(Operation.GET_SPEAKER_SETTINGS)
                 case "picture-quality" | "picture-quality-settings":
                     content = call_api(Operation.GET_PICTURE_QUALITY_SETTINGS)
                 case "scene" | "scene-setting":
@@ -243,6 +263,18 @@ def main():
             print(json.dumps(content, indent=2))
         case "set":
             match args.resource:
+                case "volume" | "audio-volume":
+                    match args.value:
+                        case "up":
+                            call_api(Operation.SET_AUDIO_VOLUME_UP)
+                        case "down":
+                            call_api(Operation.SET_AUDIO_VOLUME_DOWN)
+                case "mute" | "audio-mute":
+                    match args.value:
+                        case "on":
+                            call_api(Operation.SET_AUDIO_MUTE_ON)
+                        case "off":
+                            call_api(Operation.SET_AUDIO_MUTE_OFF)
                 case "led" | "led-indicator" | "led-indicator-status":
                     match args.mode:
                         case "demo":
@@ -263,26 +295,14 @@ def main():
                             call_api(Operation.SET_POWER_STATUS_OFF)
                 case "power-saving" | "power-saving-mode":
                     call_api(Operation.SET_POWER_SAVING_MODE, {"mode": args.mode})
-                case "scene" | "scene-setting":
-                    call_api(Operation.SET_SCENE_SETTING, {"value": args.value})
                 case "wol" | "wol-mode":
                     match args.value:
                         case "on":
                             call_api(Operation.SET_WOL_MODE_ON)
                         case "off":
                             call_api(Operation.SET_WOL_MODE_OFF)
-                case "volume" | "audio-volume":
-                    match args.value:
-                        case "up":
-                            call_api(Operation.SET_VOLUME_UP)
-                        case "down":
-                            call_api(Operation.SET_VOLUME_DOWN)
-                case "mute" | "audio-mute":
-                    match args.value:
-                        case "on":
-                            call_api(Operation.SET_MUTE_ON)
-                        case "off":
-                            call_api(Operation.SET_MUTE_OFF)
+                case "scene" | "scene-setting":
+                    call_api(Operation.SET_SCENE_SETTING, {"value": args.value})
 
 
 if __name__ == "__main__":
