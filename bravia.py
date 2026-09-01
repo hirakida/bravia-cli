@@ -58,45 +58,6 @@ class Operation(enum.Enum):
     SET_SCENE_SETTING = auto()
 
 
-GET_OPERATIONS = {
-    "api": Operation.GET_SUPPORTED_API_INFO,
-    "api-info": Operation.GET_SUPPORTED_API_INFO,
-    "supported-api-info": Operation.GET_SUPPORTED_API_INFO,
-    "application-list": Operation.GET_APPLICATION_LIST,
-    "web-app-status": Operation.GET_WEB_APP_STATUS,
-    "application-status-list": Operation.GET_APPLICATION_STATUS_LIST,
-    "volume": Operation.GET_VOLUME_INFO,
-    "volume-information": Operation.GET_VOLUME_INFO,
-    "speaker": Operation.GET_SPEAKER_SETTINGS,
-    "speaker-settings": Operation.GET_SPEAKER_SETTINGS,
-    "public-key": Operation.GET_PUBLIC_KEY,
-    "led": Operation.GET_LED_INDICATOR_STATUS,
-    "led-indicator-status": Operation.GET_LED_INDICATOR_STATUS,
-    "power": Operation.GET_POWER_STATUS,
-    "power-status": Operation.GET_POWER_STATUS,
-    "power-saving": Operation.GET_POWER_SAVING_MODE,
-    "power-saving-mode": Operation.GET_POWER_SAVING_MODE,
-    "remote-controller": Operation.GET_REMOTE_CONTROLLER_INFO,
-    "remote-controller-info": Operation.GET_REMOTE_CONTROLLER_INFO,
-    "system-supported-function": Operation.GET_SYSTEM_SUPPORTED_FUNCTION,
-    "supported-function": Operation.GET_SYSTEM_SUPPORTED_FUNCTION,
-    "wol": Operation.GET_WOL_MODE,
-    "wol-mode": Operation.GET_WOL_MODE,
-    "current-time": Operation.GET_CURRENT_TIME,
-    "network": Operation.GET_NETWORK_SETTINGS,
-    "network-settings": Operation.GET_NETWORK_SETTINGS,
-    "interface": Operation.GET_INTERFACE_INFO,
-    "interface-information": Operation.GET_INTERFACE_INFO,
-    "remote-device": Operation.GET_REMOTE_DEVICE_SETTINGS,
-    "remote-device-settings": Operation.GET_REMOTE_DEVICE_SETTINGS,
-    "system": Operation.GET_SYSTEM_INFO,
-    "system-information": Operation.GET_SYSTEM_INFO,
-    "picture-quality": Operation.GET_PICTURE_QUALITY_SETTINGS,
-    "picture-quality-settings": Operation.GET_PICTURE_QUALITY_SETTINGS,
-    "scene": Operation.GET_SCENE_SETTING,
-    "scene-setting": Operation.GET_SCENE_SETTING,
-}
-
 API_SPECS = {
     # guide
     Operation.GET_SUPPORTED_API_INFO: ApiSpec("guide", "getSupportedApiInfo", 5, {"services": None}, "1.0"),
@@ -133,6 +94,44 @@ API_SPECS = {
     # videoScreen
     Operation.GET_SCENE_SETTING: ApiSpec("videoScreen", "getSceneSetting", 79, None, "1.0"),
     Operation.SET_SCENE_SETTING: ApiSpec("videoScreen", "setSceneSetting", 40, None, "1.0")
+}
+
+GET_OPERATIONS = {
+    "api": Operation.GET_SUPPORTED_API_INFO,
+    "supported-api-info": Operation.GET_SUPPORTED_API_INFO,
+    "application-list": Operation.GET_APPLICATION_LIST,
+    "web-app-status": Operation.GET_WEB_APP_STATUS,
+    "application-status-list": Operation.GET_APPLICATION_STATUS_LIST,
+    "volume": Operation.GET_VOLUME_INFO,
+    "volume-information": Operation.GET_VOLUME_INFO,
+    "speaker": Operation.GET_SPEAKER_SETTINGS,
+    "speaker-settings": Operation.GET_SPEAKER_SETTINGS,
+    "public-key": Operation.GET_PUBLIC_KEY,
+    "led": Operation.GET_LED_INDICATOR_STATUS,
+    "led-indicator-status": Operation.GET_LED_INDICATOR_STATUS,
+    "power": Operation.GET_POWER_STATUS,
+    "power-status": Operation.GET_POWER_STATUS,
+    "power-saving": Operation.GET_POWER_SAVING_MODE,
+    "power-saving-mode": Operation.GET_POWER_SAVING_MODE,
+    "remote-controller": Operation.GET_REMOTE_CONTROLLER_INFO,
+    "remote-controller-info": Operation.GET_REMOTE_CONTROLLER_INFO,
+    "system-supported-function": Operation.GET_SYSTEM_SUPPORTED_FUNCTION,
+    "supported-function": Operation.GET_SYSTEM_SUPPORTED_FUNCTION,
+    "wol": Operation.GET_WOL_MODE,
+    "wol-mode": Operation.GET_WOL_MODE,
+    "current-time": Operation.GET_CURRENT_TIME,
+    "network": Operation.GET_NETWORK_SETTINGS,
+    "network-settings": Operation.GET_NETWORK_SETTINGS,
+    "interface": Operation.GET_INTERFACE_INFO,
+    "interface-information": Operation.GET_INTERFACE_INFO,
+    "remote-device": Operation.GET_REMOTE_DEVICE_SETTINGS,
+    "remote-device-settings": Operation.GET_REMOTE_DEVICE_SETTINGS,
+    "system": Operation.GET_SYSTEM_INFO,
+    "system-information": Operation.GET_SYSTEM_INFO,
+    "picture-quality": Operation.GET_PICTURE_QUALITY_SETTINGS,
+    "picture-quality-settings": Operation.GET_PICTURE_QUALITY_SETTINGS,
+    "scene": Operation.GET_SCENE_SETTING,
+    "scene-setting": Operation.GET_SCENE_SETTING,
 }
 
 
@@ -190,7 +189,6 @@ def build_parser() -> argparse.ArgumentParser:
                             choices=[
                                 # guide
                                 "api",
-                                "api-info",
                                 "supported-api-info",
                                 # appControl
                                 "application-list",
